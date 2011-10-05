@@ -1,0 +1,16 @@
+Files and Directories:
+
+libraries - the libraries directory contains the library to
+communicate via the Anaconda shield with a Linksprite wifi module.
+
+linksprite_setup - the linksprite_setup directory contains an example
+that shows how to set and read parameters from the Linksprite module
+
+linksprite_scanning - the linksprite_scanning directory contains an example
+that scans for AP stations and prints them to a serial port
+
+linksprite_rxtx - the linksprite_rxtx directory contains an example
+that sends packets
+
+udpServer.java - A small Java server script (other programs, like
+netcat, etc. can be used too of course)
