@@ -109,6 +109,7 @@ typedef struct _parameter_t {
 /* Return values */
 #define ERROR            0
 #define SUCCESS          1
+#define DISCONNECT       2
 
 
 uint8_t send_frame ( uint8_t   control_type,
@@ -134,3 +135,5 @@ uint8_t set_parameters_linksprite ( group_id_t  parameter_group,
 				    uint8_t     num_parameters );
 
 uint8_t connect_to_network_linksprite ( group_id_t group_id );
+
+uint8_t receive_frame_linksprite ( uint8_t *data, uint16_t *length );

@@ -123,7 +123,7 @@ int8_t wait_for_input ()
 
     if ( !input_timeout-- ) {
       if ( PRINT_DEBUG )
-	DEBUG_MESSAGE.println ( "wait_for_input: input timeout." );
+        DEBUG_MESSAGE.println ( "wait_for_input: input timeout." );
       return ERROR;
     }
 
@@ -149,7 +149,7 @@ uint8_t receive_frame_header ( frame_header_t *frame_header )
 
     if ( !syn_timeout-- ) {
       if ( PRINT_DEBUG )
-	DEBUG_MESSAGE.println ( "receive_frame_header: SYN timeout." );
+        DEBUG_MESSAGE.println ( "receive_frame_header: SYN timeout." );
       return ERROR;
     }
 
@@ -200,7 +200,7 @@ uint8_t receive_frame_header ( frame_header_t *frame_header )
   if ( !check_crc8 ( frame_header_input, 4 ) ) {
     if ( PRINT_DEBUG )
       DEBUG_MESSAGE.println
-	( "receive_frame_header: frame header crc-8 check failed." );
+        ( "receive_frame_header: frame header crc-8 check failed." );
     return ERROR;
   }
 
@@ -216,8 +216,8 @@ uint8_t receive_padding_bytes ()
 
   /* Read in padding bytes */
   for ( uint8_t padding_count = 0;
-	padding_count < PADDING_LENGTH;
-	padding_count++ ) {
+        padding_count < PADDING_LENGTH;
+        padding_count++ ) {
 
     /* *** next input *** */
 
@@ -229,9 +229,9 @@ uint8_t receive_padding_bytes ()
     /* Input must be zero */
     if ( input ) {
       if ( PRINT_DEBUG ) {
-	DEBUG_MESSAGE.print   ( "receive_ack_frame: padding byte " );
-	DEBUG_MESSAGE.print   ( padding_count, DEC );
-	DEBUG_MESSAGE.println ( " is not zero." );
+        DEBUG_MESSAGE.print   ( "receive_ack_frame: padding byte " );
+        DEBUG_MESSAGE.print   ( padding_count, DEC );
+        DEBUG_MESSAGE.println ( " is not zero." );
       }
       return ERROR;
     }
@@ -277,9 +277,9 @@ uint8_t receive_ack_frame ()
 
 
 uint8_t send_frame ( uint8_t   control_type,
-		     uint8_t  *data,
-		     uint16_t  data_length,
-		     bool      with_ack )
+                     uint8_t  *data,
+                     uint16_t  data_length,
+                     bool      with_ack )
 {
 
   uint8_t  frame_header [ HEADER_LENGTH ];
@@ -343,9 +343,9 @@ uint8_t reset_linksprite ()
   LinkSprite.flush ();
 
   if ( send_frame ( CONTROL,
-		    reset_control,
-		    RESET_CONTROL_LENGTH,
-		    WITH_ACK ) == ERROR )
+                    reset_control,
+                    RESET_CONTROL_LENGTH,
+                    WITH_ACK ) == ERROR )
     return ERROR;
 
   if ( !receive_frame_header ( &frame_header ) )
@@ -354,7 +354,7 @@ uint8_t reset_linksprite ()
   if ( frame_header.length < 3 ) {
     if ( PRINT_DEBUG )
       DEBUG_MESSAGE.println
-	( "reset_linksprite: length of reset information smaller than 3" );
+        ( "reset_linksprite: length of reset information smaller than 3" );
     return ERROR;
   }
 
@@ -367,7 +367,7 @@ uint8_t reset_linksprite ()
   if ( input != MESSAGE_FINISHED_INIT ) {
     if ( PRINT_DEBUG )
       DEBUG_MESSAGE.println
-	( "reset_linksprite: message flag received is not 0x45" );
+        ( "reset_linksprite: message flag received is not 0x45" );
     return ERROR;
   }
 
@@ -404,8 +404,8 @@ uint8_t reset_linksprite ()
     DEBUG_MESSAGE.print ( "reset information: " );
 
   for ( uint16_t input_count = 3;
-	input_count < frame_header.length;
-	input_count++ ) {
+        input_count < frame_header.length;
+        input_count++ ) {
 
     if ( wait_for_input () == ERROR )
     return ERROR;
@@ -439,15 +439,15 @@ uint8_t reset_linksprite ()
 
 
 uint8_t scan_network_linksprite ( uint16_t               portmask,
-				  network_scan_result_t *results,
-				  uint8_t               *num_result_entries )
+                                  network_scan_result_t *results,
+                                  uint8_t               *num_result_entries )
 {
 
   #define SCAN_NETWORK_CONTROL_LENGTH 3
   /* Scan network command */
   uint8_t scan_network_control [] = { COMMAND_SCAN_NETWORK,
-				      highByte ( portmask ),
-				      lowByte  ( portmask ) };
+                                      highByte ( portmask ),
+                                      lowByte  ( portmask ) };
   network_scan_result_t *result = results;
   frame_header_t frame_header;
   uint8_t input;
@@ -456,11 +456,11 @@ uint8_t scan_network_linksprite ( uint16_t               portmask,
 
   /* States of the result input */
   enum { state_flag,
-	 state_index_strength,
-	 state_channel,
-	 state_bssid,
-	 state_length,
-	 state_ssid } state;
+         state_index_strength,
+         state_channel,
+         state_bssid,
+         state_length,
+         state_ssid } state;
 
   if ( PRINT_DEBUG )
     DEBUG_MESSAGE.println ( "scanning network" );
@@ -470,9 +470,9 @@ uint8_t scan_network_linksprite ( uint16_t               portmask,
     return SUCCESS;
 
   if ( send_frame ( CONTROL,
-		    scan_network_control,
-		    SCAN_NETWORK_CONTROL_LENGTH,
-		    WITH_ACK ) == ERROR )
+                    scan_network_control,
+                    SCAN_NETWORK_CONTROL_LENGTH,
+                    WITH_ACK ) == ERROR )
     return ERROR;
 
   if ( !receive_frame_header ( &frame_header ) )
@@ -480,7 +480,7 @@ uint8_t scan_network_linksprite ( uint16_t               portmask,
 
   state = state_flag;
   for ( uint16_t i = 0, finished = false;
-	i < frame_header.length; i++ ) {
+        i < frame_header.length; i++ ) {
 
     uint8_t state_bssid_count, state_ssid_count;
 
@@ -490,66 +490,66 @@ uint8_t scan_network_linksprite ( uint16_t               portmask,
     input = LinkSprite.read ();
 
     if ( !finished ) /* I.e. There are more entries to be stored,
-		        else skip over them */
+                        else skip over them */
       switch ( state ) {
 
       case state_flag:
-	if ( input != MESSAGE_SCAN_NETWORK_RESULT ) {
-	  if ( PRINT_DEBUG ) {
-	    DEBUG_MESSAGE.print ( "scan_network_control_length: wrong flag, " );
-	    DEBUG_MESSAGE.println ( input, HEX );
-	  }
-	  return ERROR;
-	}
-	state = state_index_strength;
-	break;
+        if ( input != MESSAGE_SCAN_NETWORK_RESULT ) {
+          if ( PRINT_DEBUG ) {
+            DEBUG_MESSAGE.print ( "scan_network_control_length: wrong flag, " );
+            DEBUG_MESSAGE.println ( input, HEX );
+          }
+          return ERROR;
+        }
+        state = state_index_strength;
+        break;
 
       case state_index_strength:
-	result->index_strength = input;
-	state = state_channel;
-	break;
+        result->index_strength = input;
+        state = state_channel;
+        break;
 
       case state_channel:
-	if ( ( input < 1 ) || ( input > 14 ) ) {
-	  if ( PRINT_DEBUG ) {
-	    DEBUG_MESSAGE.print
-	      ( "scan_network_linksprite: channel " );
-	    DEBUG_MESSAGE.print ( input, DEC );
-	    DEBUG_MESSAGE.print ( " out of bounds" );
-	  }
-	  return ERROR;
-	}
-	result->channel = input;
-	state = state_bssid;
-	state_bssid_count = 0;
-	break;
+        if ( ( input < 1 ) || ( input > 14 ) ) {
+          if ( PRINT_DEBUG ) {
+            DEBUG_MESSAGE.print
+              ( "scan_network_linksprite: channel " );
+            DEBUG_MESSAGE.print ( input, DEC );
+            DEBUG_MESSAGE.print ( " out of bounds" );
+          }
+          return ERROR;
+        }
+        result->channel = input;
+        state = state_bssid;
+        state_bssid_count = 0;
+        break;
 
       case state_bssid:
-	result->bssid [ state_bssid_count ] = input;
-	if ( ++state_bssid_count == BSSID_LENGTH )
-	  state = state_length;
-	break;
+        result->bssid [ state_bssid_count ] = input;
+        if ( ++state_bssid_count == BSSID_LENGTH )
+          state = state_length;
+        break;
 
       case state_length:
-	result->length = input;
-	state = state_ssid;
-	state_ssid_count = 0;
-	break;
+        result->length = input;
+        state = state_ssid;
+        state_ssid_count = 0;
+        break;
 
       case state_ssid:
-	result->ssid [ state_ssid_count ] = input;
-	if ( ++state_ssid_count == result->length ) {
-	  state = state_index_strength;
-	  result++;
-	  if ( !--result_entries_count )
-	    finished = true;
-	}
-	break;
+        result->ssid [ state_ssid_count ] = input;
+        if ( ++state_ssid_count == result->length ) {
+          state = state_index_strength;
+          result++;
+          if ( !--result_entries_count )
+            finished = true;
+        }
+        break;
 
       default:
-	if ( PRINT_DEBUG )
-	  DEBUG_MESSAGE.println ( "scan_network_linksprite: should not happen" );
-	return ERROR;
+        if ( PRINT_DEBUG )
+          DEBUG_MESSAGE.println ( "scan_network_linksprite: should not happen" );
+        return ERROR;
 
       }
 
@@ -576,9 +576,9 @@ uint8_t scan_network_linksprite ( uint16_t               portmask,
 
 
 uint8_t get_parameters_linksprite ( group_id_t      parameter_group,
-				    parameter_id_t  parameter_id [],
-				    parameter_t    *parameter,
-				    uint8_t         num_parameter_ids )
+                                    parameter_id_t  parameter_id [],
+                                    parameter_t    *parameter,
+                                    uint8_t         num_parameter_ids )
 {
 
   #define GET_PARAMETERS_CONTROL_LENGTH ( 2 + num_parameter_ids )
@@ -592,10 +592,10 @@ uint8_t get_parameters_linksprite ( group_id_t      parameter_group,
 
   /* States of the result input */
   enum { state_flag,
-	 state_group,
-	 state_id,
-	 state_length,
-	 state_info } state;
+         state_group,
+         state_id,
+         state_length,
+         state_info } state;
 
   if ( PRINT_DEBUG ) {
     DEBUG_MESSAGE.print   ( "getting parameters for group " );
@@ -614,9 +614,9 @@ uint8_t get_parameters_linksprite ( group_id_t      parameter_group,
     get_parameters_control [ i + 2 ] = parameter_id [ i ];
 
   if ( send_frame ( CONTROL,
-		    get_parameters_control,
-		    GET_PARAMETERS_CONTROL_LENGTH,
-		    WITH_ACK ) == ERROR )
+                    get_parameters_control,
+                    GET_PARAMETERS_CONTROL_LENGTH,
+                    WITH_ACK ) == ERROR )
     return ERROR;
 
   if ( !receive_frame_header ( &frame_header ) )
@@ -624,7 +624,7 @@ uint8_t get_parameters_linksprite ( group_id_t      parameter_group,
 
   state = state_flag;
   for ( uint16_t i = 0, finished = false;
-	i < frame_header.length; i++ ) {
+        i < frame_header.length; i++ ) {
 
     if ( wait_for_input () == ERROR )
       return ERROR;
@@ -632,60 +632,60 @@ uint8_t get_parameters_linksprite ( group_id_t      parameter_group,
     input = LinkSprite.read ();
 
     if ( !finished ) /* I.e. There are more entries to be stored,
-		        else skip over them */
+                        else skip over them */
       switch ( state ) {
 
       case state_flag:
-	if ( input != MESSAGE_GET_PARAMETERS ) {
-	  if ( PRINT_DEBUG ) {
-	    DEBUG_MESSAGE.print ( "get_parameters_linksprite: wrong flag, expected 0x44, got " );
-	    DEBUG_MESSAGE.println ( input, HEX );
-	  }
-	  return ERROR;
-	}
-	state = state_group;
-	break;
+        if ( input != MESSAGE_GET_PARAMETERS ) {
+          if ( PRINT_DEBUG ) {
+            DEBUG_MESSAGE.print ( "get_parameters_linksprite: wrong flag, expected 0x44, got " );
+            DEBUG_MESSAGE.println ( input, HEX );
+          }
+          return ERROR;
+        }
+        state = state_group;
+        break;
 
       case state_group:
-	if ( input != parameter_group ) {
-	  /* Print error messages including the group offset */
-	  if ( PRINT_DEBUG ) {
-	    DEBUG_MESSAGE.print
-	      ( "get_parameters_linksprite: wrong returned group id, expected: " );
-	    DEBUG_MESSAGE.print ( parameter_group, HEX );
-	    DEBUG_MESSAGE.print ( ", received: " );
-	    DEBUG_MESSAGE.println ( input, HEX );
-	  }
-	  return ERROR;
-	}
-	state = state_id;
-	break;
+        if ( input != parameter_group ) {
+          /* Print error messages including the group offset */
+          if ( PRINT_DEBUG ) {
+            DEBUG_MESSAGE.print
+              ( "get_parameters_linksprite: wrong returned group id, expected: " );
+            DEBUG_MESSAGE.print ( parameter_group, HEX );
+            DEBUG_MESSAGE.print ( ", received: " );
+            DEBUG_MESSAGE.println ( input, HEX );
+          }
+          return ERROR;
+        }
+        state = state_id;
+        break;
 
       case state_id:
-	parameter->id = ( parameter_id_t ) input;
-	state = state_length;
-	break;
+        parameter->id = ( parameter_id_t ) input;
+        state = state_length;
+        break;
 
       case state_length:
-	parameter->length = input;
-	parameter_info_count = 0;
-	state = state_info;
-	break;
+        parameter->length = input;
+        parameter_info_count = 0;
+        state = state_info;
+        break;
 
       case state_info:
-	parameter->info [ parameter_info_count ] = input;
-	if ( ++parameter_info_count == parameter->length ) {
-	  state = state_id;
-	  parameter++;
-	  if ( !--parameter_entries_count )
-	    finished = true;
-	}
-	break;
+        parameter->info [ parameter_info_count ] = input;
+        if ( ++parameter_info_count == parameter->length ) {
+          state = state_id;
+          parameter++;
+          if ( !--parameter_entries_count )
+            finished = true;
+        }
+        break;
 
       default:
-	if ( PRINT_DEBUG )
-	  DEBUG_MESSAGE.println ( "get_parameters_linksprite: should not happen" );
-	return ERROR;
+        if ( PRINT_DEBUG )
+          DEBUG_MESSAGE.println ( "get_parameters_linksprite: should not happen" );
+        return ERROR;
 
       }
 
@@ -708,8 +708,8 @@ uint8_t get_parameters_linksprite ( group_id_t      parameter_group,
 
 
 uint8_t set_parameters_linksprite ( group_id_t  parameter_group,
-				    parameter_t parameter [],
-				    uint8_t     num_parameters )
+                                    parameter_t parameter [],
+                                    uint8_t     num_parameters )
 {
 
   frame_header_t frame_header;
@@ -739,14 +739,14 @@ uint8_t set_parameters_linksprite ( group_id_t  parameter_group,
       set_parameters_control [ k++ ] = parameter [ i ].length;
 
       for ( uint8_t j = 0; j < parameter [ i ].length; j++ )
-	set_parameters_control [ k++ ] = parameter [ i ].info [ j ];
+        set_parameters_control [ k++ ] = parameter [ i ].info [ j ];
 
     }
 
     if ( send_frame ( CONTROL,
-		      set_parameters_control,
-		      set_parameters_control_size,
-		      WITH_ACK ) == ERROR )
+                      set_parameters_control,
+                      set_parameters_control_size,
+                      WITH_ACK ) == ERROR )
       return ERROR;
 
   }
@@ -757,7 +757,7 @@ uint8_t set_parameters_linksprite ( group_id_t  parameter_group,
   if ( frame_header.length != 2 ) {
     if ( PRINT_DEBUG )
       DEBUG_MESSAGE.println
-	( "set_parameters_linksprite: length of returned message not equal 2" );
+        ( "set_parameters_linksprite: length of returned message not equal 2" );
     return ERROR;
   }
 
@@ -770,7 +770,7 @@ uint8_t set_parameters_linksprite ( group_id_t  parameter_group,
   if ( input != MESSAGE_SET_PARAMETERS ) {
     if ( PRINT_DEBUG )
       DEBUG_MESSAGE.println
-	( "set_parameters_linksprite: message flag received is not 0x43" );
+        ( "set_parameters_linksprite: message flag received is not 0x43" );
     return ERROR;
   }
 
@@ -809,8 +809,8 @@ uint8_t connect_to_network_linksprite ( group_id_t group_id )
 
   /* States of the result input */
   enum { state_flag,
-	 state_result,
-	 state_other } state;
+         state_result,
+         state_other } state;
 
   if ( PRINT_DEBUG ) {
     DEBUG_MESSAGE.print ( "connect_to_network_linksprite, group " );
@@ -818,9 +818,9 @@ uint8_t connect_to_network_linksprite ( group_id_t group_id )
   }
 
   if ( send_frame ( CONTROL,
-		    connect_to_network_control,
-		    CONNECT_TO_NETWORK_CONTROL_LENGTH,
-		    WITH_ACK ) == ERROR )
+                    connect_to_network_control,
+                    CONNECT_TO_NETWORK_CONTROL_LENGTH,
+                    WITH_ACK ) == ERROR )
     return ERROR;
 
   if ( !receive_frame_header ( &frame_header ) )
@@ -838,22 +838,22 @@ uint8_t connect_to_network_linksprite ( group_id_t group_id )
 
     case state_flag:
       if ( input != MESSAGE_CONNECT_TO_NETWORK ) {
-	if ( PRINT_DEBUG ) {
-	  DEBUG_MESSAGE.print ( "connect_to_network_linksprite: wrong flag, expected 0x41, got " );
-	  DEBUG_MESSAGE.println ( input, HEX );
-	}
-	return ERROR;
+        if ( PRINT_DEBUG ) {
+          DEBUG_MESSAGE.print ( "connect_to_network_linksprite: wrong flag, expected 0x41, got " );
+          DEBUG_MESSAGE.println ( input, HEX );
+        }
+        return ERROR;
       }
       state = state_result;
       break;
 
     case state_result:
       if ( input ) {
-	if ( PRINT_DEBUG ) {
-	  DEBUG_MESSAGE.print ( "connect_to_network_linksprite: connection failed, result " );
-	  DEBUG_MESSAGE.println ( input, HEX );
-	}
-	return_value = ERROR;
+        if ( PRINT_DEBUG ) {
+          DEBUG_MESSAGE.print ( "connect_to_network_linksprite: connection failed, result " );
+          DEBUG_MESSAGE.println ( input, HEX );
+        }
+        return_value = ERROR;
       }
       state = state_other;
       break;
@@ -864,7 +864,7 @@ uint8_t connect_to_network_linksprite ( group_id_t group_id )
 
     default:
       if ( PRINT_DEBUG )
-	DEBUG_MESSAGE.println ( "connect_to_network_linksprite: should not happen" );
+        DEBUG_MESSAGE.println ( "connect_to_network_linksprite: should not happen" );
       return ERROR;
 
     }
@@ -880,5 +880,74 @@ uint8_t connect_to_network_linksprite ( group_id_t group_id )
     DEBUG_MESSAGE.println ( "connect_to_network_linksprite successful" );
 
   return return_value;
+
+}
+
+
+uint8_t receive_frame_linksprite ( uint8_t *data, uint16_t *length )
+{
+
+  frame_header_t frame_header;
+  uint8_t input;
+  uint16_t i;
+
+  /* Get frame header */
+  if ( !receive_frame_header ( &frame_header ) )
+    return ERROR;
+
+  if ( frame_header.length > *length ) {
+
+    if ( PRINT_DEBUG )
+      DEBUG_MESSAGE.println
+        ( "receive_frame: frame header length greater than available data length" );
+
+    return ERROR;
+
+  }
+
+  for ( i = 0; i < frame_header.length; i++ ) {
+
+    if ( wait_for_input () == ERROR )
+      return ERROR;
+
+    input = LinkSprite.read ();
+
+    if ( ( i == 0 ) && ( input == MESSAGE_DISCONNECT_FROM_NETWORK ) ) {
+
+      if ( wait_for_input () == ERROR )
+        return ERROR;
+
+      input = LinkSprite.read ();
+
+      if ( PRINT_DEBUG ) {
+
+        DEBUG_MESSAGE.print   ( "receive_frame: disconnect with status " );
+
+        if ( !input )
+          DEBUG_MESSAGE.println ( "0x00 - normal" );
+        else {
+          DEBUG_MESSAGE.print   ( input, HEX );
+          DEBUG_MESSAGE.println ( " - abnormal" );
+        }
+
+        increase_sequence_number ();
+
+        return DISCONNECT;
+
+      }
+
+    } else {
+
+      data [ i ] = input;
+
+    }
+
+  }
+
+  *length = i;
+
+  increase_sequence_number ();
+
+  return SUCCESS;
 
 }

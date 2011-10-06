@@ -1,5 +1,6 @@
 #include <linksprite_wifi.h>
 
+
 void setup ()
 {
 
@@ -18,11 +19,15 @@ void loop ()
 
   for (;;) {
 
-    send_frame ( DATA, ( uint8_t * ) "1234567890", 10, false );
-    increase_sequence_number ();
+    uint16_t length = 16;
+    uint8_t  data [ length ];
 
-    while ( LinkSprite.available () )
-      Serial.println ( Serial1.read () );
+    send_frame ( DATA, ( uint8_t * ) "1234567890", 10, false );
+
+    while ( receive_frame_linksprite ( data, &length ) == ERROR );
+
+    Serial.write ( data, length );
+    Serial.println ( "" );
 
   }
 
