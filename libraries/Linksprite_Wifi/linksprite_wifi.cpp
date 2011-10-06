@@ -34,7 +34,7 @@
 #define HEADER_LENGTH    5
 #define CRC_LENGTH       1
 #define PADDING_LENGTH   6
-#define FOOTER_LENGTH    ( CRC_LENGTH + PADDING_LENGTH )
+#define FOOTER_LENGTH    PADDING_LENGTH
 
 /* Command types */
 #define COMMAND_SCAN_NETWORK            0x00
@@ -285,7 +285,7 @@ uint8_t send_frame ( uint8_t   control_type,
   uint8_t  frame_header [ HEADER_LENGTH ];
   /* Initialize all footer elements to 0 (i.e. padding bytes are 0) */
   uint8_t  frame_footer [ FOOTER_LENGTH ] = { 0x00 };
-  uint16_t data_crc_length = data_crc_length + CRC_LENGTH;
+  uint16_t all_data_length = data_length;
   uint8_t  control_field = 0;
 
   if ( with_ack )
@@ -293,12 +293,13 @@ uint8_t send_frame ( uint8_t   control_type,
   control_field |= control_type;
   control_field |= sequence_number;
 
-  data_crc_length = data_length + CRC_LENGTH;
+  if ( with_ack )
+    all_data_length+= CRC_LENGTH;
 
   frame_header [ 0 ] = SYN;
   frame_header [ 1 ] = control_field;
-  frame_header [ 2 ] = highByte ( data_crc_length ); /* High byte of length */
-  frame_header [ 3 ] = lowByte  ( data_crc_length ); /* Low byte of length */
+  frame_header [ 2 ] = highByte ( all_data_length ); /* High byte of length */
+  frame_header [ 3 ] = lowByte  ( all_data_length ); /* Low byte of length */
   /* CHK: crc-8 of the frame header (control field and data length) */
   frame_header [ 4 ] = get_crc8 ( &frame_header [ 1 ], 3 );
 
@@ -308,8 +309,13 @@ uint8_t send_frame ( uint8_t   control_type,
   /* Write frame data */
   LinkSprite.write ( data, data_length );
 
-  frame_footer [ 0 ] = get_crc8 ( data, data_length );
-  /* Write frame footer, i.e. crc-8 and zero padding */
+  if ( with_ack ) {
+    /* Write crc-8 */
+    uint8_t crc_8 = get_crc8 ( data, data_length );
+    LinkSprite.write ( &crc_8, 1 );
+  }
+
+  /* Write frame footer, i.e. zero padding */
   LinkSprite.write ( frame_footer, FOOTER_LENGTH );
 
   /* Check ACK frame */
