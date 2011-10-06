@@ -173,7 +173,7 @@ uint8_t receive_frame_header ( frame_header_t *frame_header )
       DEBUG_MESSAGE.print   ( LOW_NIBBLE ( frame_header->type ), DEC );
       DEBUG_MESSAGE.println ( "." );
     }
-    return ERROR;
+    sequence_number = LOW_NIBBLE ( frame_header->type );
   }
 
   /* High length byte */
@@ -253,7 +253,7 @@ uint8_t receive_ack_frame ()
     return ERROR;
 
   /* Check for ACK control field */
-  if ( HIGH_NIBBLE ( frame_header.type ) != ACK ) {
+  if ( !( HIGH_NIBBLE ( frame_header.type ) & ACK ) ) {
     if ( PRINT_DEBUG )
       DEBUG_MESSAGE.println ( "receive_ack_frame: no ACK after SYN." );
     return ERROR;
@@ -911,8 +911,6 @@ uint8_t receive_frame_linksprite ( uint8_t *data, uint16_t *length )
       return ERROR;
 
     input = LinkSprite.read ();
-
-    DEBUG_MESSAGE.println ( input, HEX );
 
     /* The module also sends MESSAGE_CONNECT_TO_NETWORK on disconnects, */
     /* could this be a firmware bug? */
