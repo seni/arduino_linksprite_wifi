@@ -19,15 +19,25 @@ void loop ()
 
   for (;;) {
 
-    uint16_t length = 16;
+    uint16_t length = 32;
     uint8_t  data [ length ];
 
-    send_frame ( DATA, ( uint8_t * ) "1234567890", 10, false );
+    send_frame ( DATA, ( uint8_t * ) "1234567890", 10, true );
 
-    while ( receive_frame_linksprite ( data, &length ) == ERROR );
+    switch ( receive_frame_linksprite ( data, &length ) ) {
 
-    Serial.write ( data, length );
-    Serial.println ( "" );
+    case ERROR:
+      break;
+
+    case DISCONNECT:
+      while ( connect_to_network_linksprite ( Group1 ) == ERROR );
+      break;
+
+    default:
+      Serial.write ( data, length );
+      Serial.println ( "" );
+
+    }
 
   }
 

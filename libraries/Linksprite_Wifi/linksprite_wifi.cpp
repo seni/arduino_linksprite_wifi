@@ -912,7 +912,12 @@ uint8_t receive_frame_linksprite ( uint8_t *data, uint16_t *length )
 
     input = LinkSprite.read ();
 
-    if ( ( i == 0 ) && ( input == MESSAGE_DISCONNECT_FROM_NETWORK ) ) {
+    DEBUG_MESSAGE.println ( input, HEX );
+
+    /* The module also sends MESSAGE_CONNECT_TO_NETWORK on disconnects, */
+    /* could this be a firmware bug? */
+    if ( ( i == 0 ) && ( ( input == MESSAGE_CONNECT_TO_NETWORK ) ||
+			 ( input == MESSAGE_DISCONNECT_FROM_NETWORK ) ) ) {
 
       if ( wait_for_input () == ERROR )
         return ERROR;
